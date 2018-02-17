@@ -5,7 +5,7 @@ setup(
   packages = ['scrp'],
   package_dir = {'scrp': 'scrp'},
   package_data = {'scrp': ['*']},
-  version = '0.6',
+  version = '0.7',
   description = 'Methods for scraping the web',
   author = 'Daniel J. Dufour',
   author_email = 'daniel.j.dufour@gmail.com',
