@@ -1,2 +1,2 @@
-marionette_client
+marionette_driver
 selenium

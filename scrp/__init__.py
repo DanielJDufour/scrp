@@ -4,15 +4,14 @@ from bs4 import BeautifulSoup
 from collections import Counter
 from datetime import datetime
 from numpy import mean, median, std
-from urlparse import urlparse
+from urllib.parse import urlparse
 from re import IGNORECASE, match, MULTILINE, sub, UNICODE
 flags = IGNORECASE|MULTILINE|UNICODE
 
-from error_page import *
-import firefox
-from headers import *
-from http import *
-from statements import *
+from .error_page import *
+from .headers import *
+from .http import *
+from .statements import *
 
 def getDomainFromUrlString(url):
     url_parsed = urlparse(url)
@@ -224,7 +223,7 @@ GET_POST_ELEMENTS_JAVASCRIPT = """
 
 # basically sees if something repeats more than 5 times
 def getPostsFromSoup(soup, selector_for_posts=None):
-    print "starting getPostsFromSoup with ", type(soup), str(soup)[:200]
+    print("starting getPostsFromSoup with ", type(soup), str(soup)[:200])
 
     # see if any posts that match selector_for_posts exist
     # if true, just return them and don't bother with algorithmic finding
@@ -277,7 +276,7 @@ def getPostsFromSoup(soup, selector_for_posts=None):
                             for post in posts:
                                 counter_of_classes.update(post.get("class"))
                             shared_classes = []
-                            for classname, count in counter_of_classes.iteritems():
+                            for classname, count in counter_of_classes.items():
                                 if count >= number_of_posts - 1:
                                     shared_classes.append(classname)
 
@@ -384,7 +383,7 @@ def getVisibleTextFromElement(element):
     [e.decompose() for e in body('title')]
     [e.extract() for e in body(text=lambda x: isinstance(x, Comment))]
  
-    return " ".join([unicode(e) for e in element(text=True)])
+    return " ".join([str(e) for e in element(text=True)])
 
 def getMainPartFromSoup(soup, selector=None):
     ##print "\t starting getMainPartFromSoup with ", type(soup), selector
@@ -466,7 +465,7 @@ def getMainPartFromSoup(soup, selector=None):
     #result = "\r\n\r\n".join([paragraph for paragraph in selected['text'].splitlines() if paragraph and not isJavaScript(paragraph) and paragraph.lower() not in ("tweet","powered by web marketing")])
     text = sub("[\r\n]+[\r\n\t ]*[\r\n]+", "\r\n\r\n", selected['text'], flags=flags)
     text = sub("\t+"," ", text)
-    text = text.replace(u'\xa0', u' ')
+    text = text.replace('\xa0', ' ')
     selected['text'] = text
     text = text.strip()
     ##print "\t finishing getMainPartFromSoup with ", selected
@@ -513,7 +512,7 @@ def getCleanTextFromSoup(soup):
 
     text = sub("[\r\n]+[\r\n\t ]*[\r\n]+", "\r\n\r\n", text, flags=flags)
     text = sub("\t+"," ", text)
-    text = text.replace(u'\xa0', u' ')
+    text = text.replace('\xa0', ' ')
     return text
 
 def getCleanTextFromText(text):
@@ -533,24 +532,24 @@ x = getMainTextFromText
 
 
 terms = {}
-terms['ar'] = ("ar","arabic",u"\u0639\u0631\u0628\u064a")
+terms['ar'] = ("ar","arabic","\u0639\u0631\u0628\u064a")
 terms['en'] = ("en","english")
 terms['fr'] = ("fr","french")
-terms['tr'] = ("tr","turkish",u'\u0054\u00fc\u0072\u006b\u00e7\u0065')
+terms['tr'] = ("tr","turkish",'\u0054\u00fc\u0072\u006b\u00e7\u0065')
 terms['ku'] = ('ku','kurdish')
 
 # Sorani version of Kurdish
-terms['ku-so'] = ('sorani',u'\u0643\u0648\u0631\u062f\u0649')
+terms['ku-so'] = ('sorani','\u0643\u0648\u0631\u062f\u0649')
 
 # Kurmanci version of Kurdish
-terms['ku-ku'] = ('kurmanci','kurmanji','kurmangi',u'\u004b\u0075\u0072\u0064\u00ee',u'Daxuyan\xee')
+terms['ku-ku'] = ('kurmanci','kurmanji','kurmangi','\u004b\u0075\u0072\u0064\u00ee','Daxuyan\xee')
 
 def getLanguageVersionUrlsFromDriver(driver):
     d = {}
     script = """
     result = {};
     var terms = {};
-    terms.ar = ["ar","arabic","\u0639\u0631\u0628\u064a","\u0061\u0072\u0061\u0062\u0069\u0063  \u0639\u0631\u0628\u064a"];
+    terms.ar = ["ar","arabic","\\u0639\\u0631\\u0628\\u064a","\\u0061\\u0072\\u0061\\u0062\\u0069\\u0063  \\u0639\\u0631\\u0628\\u064a"];
     terms.en = ["en","english"];
     terms.fr = ["fr","french"];
     terms.tr = ["tr","turkish"];
@@ -590,7 +589,7 @@ def getLanguageVersionUrlsFromSoup(soup, domain):
     for a in soup.findAll("a", href=True):
         text = a.text.lower().strip()
         href = a['href']
-        for key, values in terms.iteritems():
+        for key, values in terms.items():
             if text in values:
                 ##print "text is", [text]
                 ##print "match!"
@@ -605,7 +604,7 @@ def getLanguageVersionUrlsFromText(text):
     return getLanguageVersionUrlsFromSoup(BeautifulSoup(text))
 
 def guessLanguageOfUrl(url):
-    for key, values in terms.iteritems():
+    for key, values in terms.items():
         if re.search("(" + "|".join(values) + ")", url):
             return key
 
@@ -613,9 +612,9 @@ def guessLanguageOfUrl(url):
 # different than getting hrefs or posts, because this way get full absolute url because have to pass in domain
 def getUrlsFromSoup(soup, domain, selectors_for_post=None):
     domain = domain.lower()
-    print "\nstarting getUrlsFromSoup with", type(soup), "and", domain
+    print("\nstarting getUrlsFromSoup with", type(soup), "and", domain)
     posts = getPostsFromSoup(soup, selectors_for_post)
-    print "\tposts from getPostsFromSoup = ", len(posts or [])
+    print("\tposts from getPostsFromSoup = ", len(posts or []))
     if posts:
         hrefs = []
         for post in posts:
